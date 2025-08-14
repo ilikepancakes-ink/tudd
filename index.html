@@ -141,13 +141,28 @@
     </div>
 
     <script>
+        // ===== ADD YOUR IMAGE FILENAMES HERE =====
+        // Just add the filename of any new image you put in the /imgs folder
+        const images = [
+            'image.png',
+            'image (1).png',
+            'image (2).png',
+            'image (3).png',
+            'image (4).png',
+            'image (5).png',
+            'image0.webp'
+            // Add new images here like: 'newimage.jpg',
+        ];
+        // =========================================
+
         // Function to create image cards
         function createImageCard(imageName) {
             const card = document.createElement('div');
             card.className = 'image-card';
 
             card.innerHTML = `
-                <img src="imgs/${imageName}" alt="${imageName}" onclick="openLightbox('imgs/${imageName}')">
+                <img src="imgs/${imageName}" alt="${imageName}" onclick="openLightbox('imgs/${imageName}')"
+                     onerror="this.parentElement.style.display='none'">
                 <div class="image-info">
                     <div class="image-name">${imageName}</div>
                 </div>
@@ -156,78 +171,18 @@
             return card;
         }
 
-        // Function to automatically discover and load all images from imgs folder
-        async function loadGallery() {
+        // Load images into gallery
+        function loadGallery() {
             const gallery = document.getElementById('gallery');
 
-            try {
-                // Common image extensions to look for
-                const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
-                const images = [];
+            images.forEach(imageName => {
+                const card = createImageCard(imageName);
+                gallery.appendChild(card);
+            });
 
-                // Try to fetch each possible image file
-                const commonImageNames = [
-                    'image.png', 'image (1).png', 'image (2).png', 'image (3).png',
-                    'image (4).png', 'image (5).png', 'image0.webp'
-                ];
-
-                // Check existing known images first
-                for (const imageName of commonImageNames) {
-                    try {
-                        const response = await fetch(`imgs/${imageName}`, { method: 'HEAD' });
-                        if (response.ok) {
-                            images.push(imageName);
-                        }
-                    } catch (e) {
-                        // Image doesn't exist, skip it
-                    }
-                }
-
-                // Also try to discover additional images by checking common patterns
-                for (let i = 0; i < 50; i++) {
-                    for (const ext of imageExtensions) {
-                        const patterns = [
-                            `image${i}.${ext}`,
-                            `image (${i}).${ext}`,
-                            `img${i}.${ext}`,
-                            `photo${i}.${ext}`,
-                            `pic${i}.${ext}`
-                        ];
-
-                        for (const pattern of patterns) {
-                            if (!images.includes(pattern)) {
-                                try {
-                                    const response = await fetch(`imgs/${pattern}`, { method: 'HEAD' });
-                                    if (response.ok) {
-                                        images.push(pattern);
-                                    }
-                                } catch (e) {
-                                    // Image doesn't exist, skip it
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Sort images naturally
-                images.sort((a, b) => {
-                    return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
-                });
-
-                // Create cards for all found images
-                images.forEach(imageName => {
-                    const card = createImageCard(imageName);
-                    gallery.appendChild(card);
-                });
-
-                // If no images found, show a message
-                if (images.length === 0) {
-                    gallery.innerHTML = '<p style="text-align: center; color: #666; font-size: 1.2rem;">No images found in the imgs folder. Add some images to get started!</p>';
-                }
-
-            } catch (error) {
-                console.error('Error loading gallery:', error);
-                gallery.innerHTML = '<p style="text-align: center; color: #666;">Error loading images. Please refresh the page.</p>';
+            // If no images in the list, show a message
+            if (images.length === 0) {
+                gallery.innerHTML = '<p style="text-align: center; color: #666; font-size: 1.2rem;">No images found. Add image filenames to the images array in the HTML file!</p>';
             }
         }
 
